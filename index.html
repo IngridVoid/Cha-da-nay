@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chá de Casa Nova da Nay</title>
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0a0a;
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --crystal-border: rgba(255, 255, 255, 0.15);
+            --crystal-glow: rgba(255, 255, 255, 0.8);
+            --text-main: #f5f5f5;
+            --text-muted: #a0a0a0;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Montserrat', sans-serif;
+            background-image: radial-gradient(circle at 50% 50%, #1a1a1a 0%, #0a0a0a 100%);
+        }
+
+        h1, h2, h3, .navbar-brand {
+            font-family: 'Cinzel', serif;
+            letter-spacing: 2px;
+        }
+
+        .crystal-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--crystal-border);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            transition: all 0.3s ease;
+        }
+
+        .crystal-card:hover {
+            border-color: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-crystal {
+            background: transparent;
+            border: 1px solid var(--text-main);
+            color: var(--text-main);
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+        }
+
+        .btn-crystal:hover {
+            background: var(--text-main);
+            color: var(--bg-dark);
+            box-shadow: 0 0 10px var(--crystal-glow);
+        }
+
+        .btn-reserved {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-muted);
+            cursor: not-allowed;
+        }
+
+        .gift-img {
+            height: 200px;
+            object-fit: cover;
+            border-bottom: 1px solid var(--crystal-border);
+            border-radius: 12px 12px 0 0;
+            background-color: #111;
+        }
+
+        .nav-link {
+            color: var(--text-muted) !important;
+        }
+        .nav-link.active, .nav-link:hover {
+            color: var(--text-main) !important;
+            text-shadow: 0 0 8px var(--crystal-glow);
+        }
+        
+        .form-select, .form-control {
+            background-color: #111 !important;
+            color: #fff !important;
+            border: 1px solid var(--crystal-border) !important;
+        }
+        .form-select:focus, .form-control:focus {
+            box-shadow: 0 0 8px var(--crystal-glow);
+            border-color: #fff !important;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Menu Superior -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-transparent border-bottom border-secondary border-opacity-25">
+        <div class="container">
+            <span class="navbar-brand">NAY &bull; HOME</span>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link active" href="#" id="view-gifts-btn" onclick="showPage('gifts-page')">Lista de Presentes</a>
+                <a class="nav-link" href="#" id="view-rsvp-btn" onclick="showPage('rsvp-page')">Confirmar Presença</a>
+                <a class="nav-link" href="#" id="view-admin-btn" onclick="showPage('admin-page')">Painel Admin</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Cabeçalho de Informações -->
+    <header class="container text-center my-5 py-4 crystal-card">
+        <h1 class="display-4 mb-3">Chá de Casa Nova da Nay</h1>
+        <p class="lead text-uppercase" style="font-size: 1.1rem; color: var(--text-muted);">20 de Janeiro de 2026</p>
+        <hr class="w-25 mx-auto bg-light">
+        <p class="mb-1"><strong>Endereço:</strong> Av. Nordestina, 3010 - Cidade Nova São Miguel</p>
+        <p class="text-muted" style="font-size: 0.9rem;">São Paulo - SP, 08042-117</p>
+    </header>
+
+    <main class="container mb-5">
+        
+        <!-- PÁGINA DOS CONVIDADOS (PRESENTES) -->
+        <section id="gifts-page">
+            <h2 class="text-center mb-4">Escolha um Presente</h2>
+            <div class="row row-cols-1 row-cols-md-3 g-4" id="gifts-container">
+                <div class="text-center w-100 my-5">
+                    <div class="spinner-border text-light" role="status"></div>
+                    <p class="mt-2 text-muted">Carregando os presentes cristalinos...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- PÁGINA DE CONFIRMAÇÃO DE PRESENÇA (RSVP) -->
+        <section id="rsvp-page" style="display: none;">
+            <div class="row justify-content-center">
+                <div class="col-md-6 crystal-card p-4">
+                    <h2 class="text-center mb-4">Confirmar Presença</h2>
+                    <p class="text-center text-muted small mb-4">Confirme sua presença para nos ajudar na organização do evento.</p>
+                    
+                    <div id="rsvp-form">
+                        <div class="mb-3">
+                            <label class="form-label">Nome Completo</label>
+                            <input type="text" id="rsvp-name" class="form-control" placeholder="Digite seu nome e sobrenome">
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label">Você é Adulto ou Criança?</label>
+                            <select id="rsvp-type" class="form-select">
+                                <option value="Adulto" selected>Adulto</option>
+                                <option value="Criança">Criança</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-crystal w-100" onclick="submitRSVP()">Confirmar Presença</button>
+                    </div>
+                    <div id="rsvp-success" style="display: none;" class="text-center py-4">
+                        <h4 style="color: #5cb85c;">✓ Presença Confirmada!</h4>
+                        <p class="text-muted mt-2">Obrigado por confirmar. Mal podemos esperar para te ver lá!</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PÁGINA DO ADMINISTRADOR -->
+        <section id="admin-page" style="display: none;">
+            <div class="row justify-content-center">
+                <div class="col-md-6 crystal-card p-4">
+                    <h2 class="text-center mb-4">Adicionar Novo Item</h2>
+                    <div id="admin-auth">
+                        <div class="mb-3">
+                            <label class="form-label">Senha de Acesso</label>
+                            <input type="password" id="admin-pass" class="form-content form-control bg-dark text-white border-secondary">
+                        </div>
+                        <button class="btn btn-crystal w-100" onclick="checkAdminPass()">Entrar</button>
+                    </div>
+                    
+                    <div id="admin-form" style="display: none;">
+                        <div class="mb-3">
+                            <label class="form-label">Nome do Presente</label>
+                            <input type="text" id="item-name" class="form-control" placeholder="Ex: Jogo de Pratos Pretos">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Link de Referência para Compra</label>
+                            <input type="url" id="item-link" class="form-control" placeholder="https://...">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">URL da Imagem de Referência</label>
+                            <input type="url" id="item-img" class="form-control" placeholder="https://...">
+                        </div>
+                        <button class="btn btn-crystal w-100" onclick="addGiftItem()">Cadastrar Presente</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal de Reserva de Presentes -->
+    <div class="modal fade" id="reserveModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-white border-secondary">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title">Reservar Presente</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Você escolheu: <strong id="modal-item-name"></strong></p>
+                    <div class="mb-3">
+                        <label class="form-label">Seu Nome Completo</label>
+                        <input type="text" id="guest-name" class="form-control" placeholder="Digite seu nome para o controle da Nay">
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-crystal btn-sm" onclick="confirmReservation()">Confirmar Reserva</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap & JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // COLOQUE A URL DO SEU GOOGLE APPS SCRIPT AQUI ABAIXO:
+        const API_URL = 'https://script.google.com/macros/s/AKfycbxqTvdx-X72XPNJN3UuqXdgI1KwZuMHym9rFAfd2IBtiUaZy1eNpSxpSO2mMFvfko3C9A/exec'; 
+        
+        let currentGiftId = null;
+        let myModal = null;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            myModal = new bootstrap.Modal(document.getElementById('reserveModal'));
+            loadGifts();
+        });
+
+        function showPage(pageId) {
+            document.getElementById('gifts-page').style.display = pageId === 'gifts-page' ? 'block' : 'none';
+            document.getElementById('rsvp-page').style.display = pageId === 'rsvp-page' ? 'block' : 'none';
+            document.getElementById('admin-page').style.display = pageId === 'admin-page' ? 'block' : 'none';
+            
+            document.getElementById('view-gifts-btn').classList.toggle('active', pageId === 'gifts-page');
+            document.getElementById('view-rsvp-btn').classList.toggle('active', pageId === 'rsvp-page');
+            document.getElementById('view-admin-btn').classList.toggle('active', pageId === 'admin-page');
+        }
+
+        function checkAdminPass() {
+            if(document.getElementById('admin-pass').value === 'nay2026') {
+                document.getElementById('admin-auth').style.display = 'none';
+                document.getElementById('admin-form').style.display = 'block';
+            } else {
+                alert('Senha incorreta!');
+            }
+        }
+
+        async function loadGifts() {
+            try {
+                const response = await fetch(API_URL);
+                const gifts = await response.json();
+                const container = document.getElementById('gifts-container');
+                container.innerHTML = '';
+
+                if(gifts.length === 0) {
+                    container.innerHTML = '<p class="text-center w-100 text-muted">Nenhum item cadastrado ainda.</p>';
+                    return;
+                }
+
+                gifts.forEach(gift => {
+                    const isReserved = gift.reservadoPor && gift.reservadoPor.trim() !== "";
+                    const card = document.createElement('div');
+                    card.className = 'col';
+                    card.innerHTML = `
+                        <div class="card h-100 crystal-card">
+                            <img src="${gift.imagem || 'https://via.placeholder.com/300x200/111111/ffffff?text=Preto+e+Cristal'}" class="card-img-top gift-img" alt="${gift.item}">
+                            <div class="card-body d-flex flex-column justify-content-between">
+                                <h5 class="card-title text-center text-white mb-3">${gift.item}</h5>
+                                <div>
+                                    <a href="${gift.link}" target="_blank" class="btn btn-outline-secondary btn-sm w-100 mb-2" style="color: #ccc">Ver Onde Comprar ↗</a>
+                                    ${isReserved ? 
+                                        `<button class="btn btn-reserved w-100" disabled>Reservado por ${gift.reservadoPor}</button>` : 
+                                        `<button class="btn btn-crystal w-100" onclick="openReserveModal('${gift.id}', '${gift.item}')">Reservar Presente</button>`
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+            } catch (error) {
+                console.error("Erro ao carregar itens:", error);
+            }
+        }
+
+        function openReserveModal(id, name) {
+            currentGiftId = id;
+            document.getElementById('modal-item-name').innerText = name;
+            document.getElementById('guest-name').value = '';
+            myModal.show();
+        }
+
+        async function confirmReservation() {
+            const name = document.getElementById('guest-name').value.trim();
+            if(!name) {
+                alert('Por favor, insira seu nome para que a Nay saiba quem deu!');
+                return;
+            }
+
+            myModal.hide();
+            document.getElementById('gifts-container').innerHTML = '<div class="text-center w-100 my-5"><div class="spinner-border text-light"></div><p class="mt-2">Computando sua reserva...</p></div>';
+
+            await fetch(API_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'reserve', id: currentGiftId, nome: name })
+            });
+
+            setTimeout(() => { loadGifts(); }, 2000);
+        }
+
+        // NOVA FUNÇÃO: Enviar Confirmação de Presença
+        async function submitRSVP() {
+            const nome = document.getElementById('rsvp-name').value.trim();
+            const tipo = document.getElementById('rsvp-type').value;
+
+            if(!nome) {
+                alert('Por favor, preencha seu nome completo.');
+                return;
+            }
+
+            document.getElementById('rsvp-form').style.display = 'none';
+            document.getElementById('rsvp-success').style.display = 'block';
+            document.getElementById('rsvp-success').innerHTML = '<div class="spinner-border text-light"></div><p class="mt-2">Confirmando...</p>';
+
+            await fetch(API_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'rsvp', nome: nome, tipo: tipo })
+            });
+
+            setTimeout(() => {
+                document.getElementById('rsvp-success').innerHTML = `
+                    <h4 style="color: #fff; text-shadow: 0 0 10px var(--crystal-glow)">✓ Presença Confirmada!</h4>
+                    <p class="text-muted mt-2">Obrigado por confirmar, ${nome}. Nos vemos no Chá!</p>
+                `;
+            }, 1500);
+        }
+
+        async function addGiftItem() {
+            const item = document.getElementById('item-name').value.trim();
+            const link = document.getElementById('item-link').value.trim();
+            const imagem = document.getElementById('item-img').value.trim();
+
+            if(!item || !link || !imagem) {
+                alert('Preencha todos os campos!');
+                return;
+            }
+
+            alert('Adicionando item...');
+            
+            await fetch(API_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'add', item, link, imagem })
+            });
+
+            document.getElementById('item-name').value = '';
+            document.getElementById('item-link').value = '';
+            document.getElementById('item-img').value = '';
+            
+            setTimeout(() => { showPage('gifts-page'); loadGifts(); }, 2000);
+        }
+    </script>
+</body>
+</html>
