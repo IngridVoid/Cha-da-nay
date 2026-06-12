@@ -8,7 +8,89 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@300;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <style>
+        :root {
+    --bg-dark: #0a0a0a;
+    --card-bg: rgba(255, 255, 255, 0.03);
+    --crystal-border: rgba(255, 255, 255, 0.15);
+    --crystal-glow: rgba(255, 255, 255, 0.8);
+    --text-main: #f5f5f5;
+    --text-muted: #a0a0a0;
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    font-family: 'Montserrat', sans-serif;
+    background-image: radial-gradient(circle at 50% 50%, #1a1a1a 0%, #0a0a0a 100%);
+}
+
+h1, h2, h3, .navbar-brand {
+    font-family: 'Cinzel', serif;
+    letter-spacing: 2px;
+}
+
+.crystal-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--crystal-border);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    transition: all 0.3s ease;
+}
+
+.btn-crystal {
+    background: transparent;
+    border: 1px solid var(--text-main);
+    color: var(--text-main);
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    transition: all 0.3s;
+}
+
+.btn-crystal:hover {
+    background: var(--text-main);
+    color: var(--bg-dark);
+    box-shadow: 0 0 10px var(--crystal-glow);
+}
+
+.btn-reserved {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #ff6b6b !important;
+    font-weight: bold;
+    cursor: not-allowed;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+}
+
+.gift-img {
+    height: 200px;
+    object-fit: cover;
+    border-bottom: 1px solid var(--crystal-border);
+    border-radius: 12px 12px 0 0;
+    background-color: #111;
+}
+
+.nav-link {
+    color: var(--text-muted) !important;
+}
+
+.nav-link.active,
+.nav-link:hover {
+    color: var(--text-main) !important;
+    text-shadow: 0 0 8px var(--crystal-glow);
+}
+
+.form-select,
+.form-control {
+    background-color: #111 !important;
+    color: #fff !important;
+    border: 1px solid var(--crystal-border) !important;
+}
+    </style>
 </head>
 <body>
 
@@ -125,6 +207,166 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="/script.js"></script>
+    <script>
+        const API_URL = 'https://script.google.com/macros/s/AKfycbwCiyhZ3CkT7Nkh6dymwyiCIzryVV8sPgKVKVWwDSB9cgM_-zkJpTBjC1tOVcRCoNTLwA/exec';
+
+        let currentGiftId = null;
+        let myModal = null;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            myModal = new bootstrap.Modal(document.getElementById('reserveModal'));
+            loadGifts();
+        });
+
+        function showPage(pageId) {
+            document.getElementById('gifts-page').style.display = pageId === 'gifts-page' ? 'block' : 'none';
+            document.getElementById('rsvp-page').style.display = pageId === 'rsvp-page' ? 'block' : 'none';
+            document.getElementById('admin-page').style.display = pageId === 'admin-page' ? 'block' : 'none';
+            
+            document.getElementById('view-gifts-btn').classList.toggle('active', pageId === 'gifts-page');
+            document.getElementById('view-rsvp-btn').classList.toggle('active', pageId === 'rsvp-page');
+            document.getElementById('view-admin-btn').classList.toggle('active', pageId === 'admin-page');
+        }
+
+        function checkAdminPass() {
+            if(document.getElementById('admin-pass').value === 'nay2026') {
+                document.getElementById('admin-auth').style.display = 'none';
+                document.getElementById('admin-form').style.display = 'block';
+            } else {
+                alert('Senha incorreta!');
+            }
+        }
+
+        // CORREÇÃO LOGÍSTICA: Carregamento via injeção de script tag (ignora o erro de CORS do navegador)
+        function loadGifts() {
+            const oldScript = document.getElementById('jsonp-script');
+            if (oldScript) oldScript.remove();
+
+            const script = document.createElement('script');
+            script.id = 'jsonp-script';
+            script.src = `${API_URL}?callback=handleGiftsResponse&nocache=${new Date().getTime()}`;
+            document.body.appendChild(script);
+        }
+
+        // Executado automaticamente assim que o Google Sheets devolve a resposta estruturada
+        function handleGiftsResponse(gifts) {
+            const container = document.getElementById('gifts-container');
+            container.innerHTML = '';
+
+            if(!gifts || gifts.length === 0) {
+                container.innerHTML = '<p class="text-center w-100 text-muted">Nenhum item cadastrado ainda.</p>';
+                return;
+            }
+
+            gifts.forEach(gift => {
+                const isReserved = gift.reservadoPor && gift.reservadoPor.toString().trim() !== "";
+                const card = document.createElement('div');
+                card.className = 'col';
+                card.innerHTML = `
+                    <div class="card h-100 crystal-card" id="card-${gift.id}">
+                        <img src="${gift.imagem || 'https://via.placeholder.com/300x200/111111/ffffff?text=Preto+e+Cristal'}" class="card-img-top gift-img" alt="${gift.item}">
+                        <div class="card-body d-flex flex-column justify-content-between">
+                            <h5 class="card-title text-center text-white mb-3">${gift.item}</h5>
+                            <div id="actions-${gift.id}">
+                                <a href="${gift.link}" target="_blank" class="btn btn-outline-secondary btn-sm w-100 mb-2" style="color: #ccc">Ver Onde Comprar ↗</a>
+                                ${isReserved ? 
+                                    `<button class="btn btn-reserved w-100" disabled>Reservado por ${gift.reservadoPor}</button>` : 
+                                    `<button class="btn btn-crystal w-100 btn-action" onclick="openReserveModal('${gift.id}', '${gift.item}')">Reservar Presente</button>`
+                                }
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function openReserveModal(id, name) {
+            currentGiftId = id;
+            document.getElementById('modal-item-name').innerText = name;
+            document.getElementById('guest-name').value = '';
+            myModal.show();
+        }
+
+        async function confirmReservation() {
+            const name = document.getElementById('guest-name').value.trim();
+            if(!name) {
+                alert('Por favor, insira seu nome!');
+                return;
+            }
+
+            myModal.hide();
+            
+            const actionContainer = document.getElementById(`actions-${currentGiftId}`);
+            if (actionContainer) {
+                const buyLink = actionContainer.querySelector('a').outerHTML;
+                actionContainer.innerHTML = `${buyLink} <button class="btn btn-reserved w-100" disabled>Reservando para você...</button>`;
+            }
+
+            await fetch(API_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'reserve', id: currentGiftId, nome: name })
+            });
+
+            setTimeout(() => { loadGifts(); }, 3000);
+        }
+
+        async function submitRSVP() {
+            const nome = document.getElementById('rsvp-name').value.trim();
+            const tipo = document.getElementById('rsvp-type').value;
+
+            if(!nome) {
+                alert('Por favor, preencha seu nome completo.');
+                return;
+            }
+
+            document.getElementById('rsvp-form').style.display = 'none';
+            document.getElementById('rsvp-success').style.display = 'block';
+            document.getElementById('rsvp-success').innerHTML = '<div class="spinner-border text-light"></div><p class="mt-2">Confirmando...</p>';
+
+            await fetch(API_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'rsvp', nome: nome, tipo: tipo })
+            });
+
+            setTimeout(() => {
+                document.getElementById('rsvp-success').innerHTML = `
+                    <h4 style="color: #fff; text-shadow: 0 0 10px var(--crystal-glow)">✓ Presença Confirmada!</h4>
+                    <p class="text-muted mt-2">Obrigado por confirmar, ${nome}. Nos vemos no Chá!</p>
+                `;
+            }, 1500);
+        }
+
+        async function addGiftItem() {
+            const item = document.getElementById('item-name').value.trim();
+            const link = document.getElementById('item-link').value.trim();
+            const imagem = document.getElementById('item-img').value.trim();
+
+            if(!item || !link || !imagem) {
+                alert('Preencha todos os campos!');
+                return;
+            }
+
+            alert('Adicionando item...');
+            
+            await fetch(API_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'add', item, link, imagem })
+            });
+
+            document.getElementById('item-name').value = '';
+            document.getElementById('item-link').value = '';
+            document.getElementById('item-img').value = '';
+            
+            setTimeout(() => { showPage('gifts-page'); loadGifts(); }, 2500);
+        }
+    
+    </script>
 </body>
 </html>
